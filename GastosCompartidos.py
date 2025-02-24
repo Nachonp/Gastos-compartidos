@@ -1,3 +1,4 @@
+import subprocess
 import pytesseract
 import cv2
 import re
@@ -32,6 +33,10 @@ def extraer_productos_precios(texto):
     productos_precios = {producto.strip(): precio for producto, precio in coincidencias}
     return productos_precios
 
+# Obtener la lista de extensiones instaladas
+result = subprocess.run(['pip', 'freeze'], stdout=subprocess.PIPE)
+extensiones = result.stdout.decode('utf-8')
+
 # Ruta de la imagen del ticket
 ruta_ticket = r'D:\Python\Gastos compartidos\ticket.jpg'
 
@@ -58,3 +63,22 @@ with open(ruta_salida_txt, 'w', encoding='utf-8') as archivo:
     for producto, precio in productos_precios.items():
         archivo.write(f"{producto}: {precio}€\n")
 print(f"\nDatos exportados a {ruta_salida_txt}")
+
+# Ruta del archivo README.md
+ruta_readme = r'D:\Python\Gastos compartidos\README.md'
+
+# Crear el contenido del README.md
+contenido_readme = f"""
+# Proyecto de Gastos Compartidos
+
+Este proyecto extrae texto de tickets, identifica productos y precios, y exporta los datos a un archivo .txt.
+
+## Extensiones Instaladas
+
+A continuación se muestra una lista de las extensiones de Python instaladas en el entorno:"""
+
+# Guardar el contenido en el archivo README.md
+with open(ruta_readme, 'w', encoding='utf-8') as archivo:
+    archivo.write(contenido_readme)
+
+print(f"README.md creado en {ruta_readme}")
