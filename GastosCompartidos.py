@@ -1,7 +1,6 @@
 import cv2
 import pytesseract
 import os
-import time
 import re
 import sys
 
