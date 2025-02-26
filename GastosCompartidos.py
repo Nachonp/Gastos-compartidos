@@ -111,10 +111,24 @@ def asignar_usuarios_a_productos(productos, nombres, num_personas):
 
     return productos_asignados, usuarios_gastos
 
+import os
+
 def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
-    """Guarda el resumen de la compra en un archivo .txt en la carpeta fija."""
+    """Guarda el resumen de la compra en un archivo .txt, permitiendo renombrar si ya existe."""
     ruta_base = r'D:\Python\Gastos compartidos\Procesos\Tickets'
-    ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")  # Usa el nombre ingresado por el usuario
+    ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
+
+    while os.path.exists(ruta_txt):
+        print(f"⚠️ El archivo '{nombre_archivo}.txt' ya existe.")
+        opcion = input("¿Desea sobrescribir (S) o ingresar un nuevo nombre (N)? ").strip().lower()
+        if opcion == 's':
+            break
+        elif opcion == 'n':
+            nombre_archivo = input("Ingrese un nuevo nombre para el archivo TXT: ").strip()
+            ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
+        else:
+            print("❌ Opción no válida. Intente nuevamente.")
+
     try:
         with open(ruta_txt, "w", encoding="utf-8") as archivo:
             archivo.write("Resumen de la compra:\n")
@@ -127,25 +141,34 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     except IOError as e:
         print(f"❌ Error al guardar el archivo de resumen: {e}")
 
+
 def main():
-    carpeta_proceso = crear_carpeta_proceso()
-    nombres_usuarios, num_personas = solicitar_nombres_usuarios()
-    ruta_imagen = solicitar_nombre_archivo()
-    texto_extraido = extraer_texto_de_imagen(ruta_imagen)
+    while True:  # Permite procesar múltiples tickets
+        carpeta_proceso = crear_carpeta_proceso()
+        nombres_usuarios, num_personas = solicitar_nombres_usuarios()
+        ruta_imagen = solicitar_nombre_archivo()
+        texto_extraido = extraer_texto_de_imagen(ruta_imagen)
 
-    # Solicitar el nombre del archivo de resumen
-    nombre_archivo = input("Ingrese el nombre del archivo TXT de resumen (sin extensión): ").strip()
+        # Solicitar el nombre del archivo de resumen
+        nombre_archivo = input("Ingrese el nombre del archivo TXT de resumen (sin extensión): ").strip()
 
-    # Guardar texto extraído con el nombre basado en el resumen
-    ruta_txt = os.path.join(carpeta_proceso, f"t_e_{nombre_archivo}.txt")
-    guardar_texto_bruto(texto_extraido, ruta_txt)
+        # Guardar texto extraído con el nombre basado en el resumen
+        ruta_txt = os.path.join(carpeta_proceso, f"t_e_{nombre_archivo}.txt")
+        guardar_texto_bruto(texto_extraido, ruta_txt)
 
-    productos_precios = procesar_texto(texto_extraido)
-    if productos_precios:
-        productos_asignados, usuarios_gastos = asignar_usuarios_a_productos(productos_precios, nombres_usuarios, num_personas)
-        guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo)  # Pasar el nombre del archivo
-    else:
-        print("No se encontraron productos y precios en la imagen.")
+        productos_precios = procesar_texto(texto_extraido)
+        if productos_precios:
+            productos_asignados, usuarios_gastos = asignar_usuarios_a_productos(productos_precios, nombres_usuarios, num_personas)
+            guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo)  # Pasar el nombre del archivo
+        else:
+            print("❌ No se encontraron productos y precios en la imagen.")
+
+        # Opción para procesar otro ticket
+        reiniciar = input("\n¿Desea procesar otro ticket? (S/N): ").strip().lower()
+        if reiniciar != 's':
+            print("👋 ¡Gracias por usar el programa!")
+            break  # Sale del bucle y finaliza el programa
 
 if __name__ == "__main__":
     main()
+    
