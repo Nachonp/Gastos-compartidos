@@ -67,37 +67,42 @@ def solicitar_nombres_usuarios():
     return {i: input(f"Ingrese el nombre de la persona {i}: ").strip() for i in range(1, num_personas + 1)}, num_personas
 
 def asignar_usuarios_a_productos(productos, nombres, num_personas):
-    """Asigna usuarios a cada producto comprado, optimizando cuando todos los usuarios compraron el producto."""
+    """Asigna usuarios a cada producto comprado, optimizando cuando hay un solo usuario o todos compraron el producto."""
     productos_asignados = []
     usuarios_gastos = {usuario: 0 for usuario in nombres.values()}  # Inicializar gastos
 
     for cantidad, producto, precio in productos:
-        while True:
-            try:
-                num_compradores = int(input(f"¿Cuántos usuarios compraron {producto}? "))
-                if 1 <= num_compradores <= num_personas:
-                    break
-                print(f"Ingrese un número entre 1 y {num_personas}.")
-            except ValueError:
-                print("Ingrese un número válido.")
-
-        # Si todos los usuarios compraron el producto, no se pregunta quiénes fueron
-        if num_compradores == num_personas:
-            compradores = list(nombres.values())  # Asignar a todos automáticamente
+        # Si hay solo un usuario, se le asigna todo sin preguntar nada
+        if num_personas == 1:
+            compradores = list(nombres.values())  # Asigna al único usuario
         else:
-            compradores = set()
-            for _ in range(num_compradores):
-                while True:
-                    try:
-                        num_usuario = int(input(f"Ingrese el número del usuario que compró {producto}: "))
-                        if num_usuario in nombres:
-                            compradores.add(nombres[num_usuario])
-                            break
-                        print("Número de usuario inválido. Intente de nuevo.")
-                    except ValueError:
-                        print("Ingrese un número válido.")
+            while True:
+                try:
+                    num_compradores = int(input(f"¿Cuántos usuarios compraron {producto}? "))
+                    if 1 <= num_compradores <= num_personas:
+                        break
+                    print(f"Ingrese un número entre 1 y {num_personas}.")
+                except ValueError:
+                    print("Ingrese un número válido.")
 
-        productos_asignados.append((cantidad, producto, precio, list(compradores)))
+            # Si todos los usuarios compraron el producto, no se pregunta quiénes fueron
+            if num_compradores == num_personas:
+                compradores = list(nombres.values())  # Asignar a todos automáticamente
+            else:
+                compradores = set()
+                for _ in range(num_compradores):
+                    while True:
+                        try:
+                            num_usuario = int(input(f"Ingrese el número del usuario que compró {producto}: "))
+                            if num_usuario in nombres:
+                                compradores.add(nombres[num_usuario])
+                                break
+                            print("Número de usuario inválido. Intente de nuevo.")
+                        except ValueError:
+                            print("Ingrese un número válido.")
+                compradores = list(compradores)
+
+        productos_asignados.append((cantidad, producto, precio, compradores))
 
         # Distribuir el costo equitativamente entre los compradores
         costo_por_usuario = (cantidad * precio) / len(compradores)
