@@ -4,7 +4,21 @@ import os
 import time
 import re
 import sys
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
+from db import db, init_db
+from sqlalchemy import Enum
 
+app = Flask(__name__)
+
+app.config['SECRET_KEY'] = "TsssIsASecret"
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://app.db'
+init_db(app)
+
+class Ticket(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    person = db.Column(db.String(50), nullable=False)
+    total_amount = db.Column(db.Float, nullable=False)
 # Configurar la ruta de Tesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 
@@ -132,7 +146,10 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     try:
         with open(ruta_txt, "w", encoding="utf-8") as archivo:
             archivo.write("Resumen de la compra:\n")
+            i=0
             for cantidad, producto, precio, compradores in productos_asignados:
+                new_ticket = Ticket(compradores[i], precio)
+                i+=1
                 archivo.write(f"{cantidad}x {producto} - ${precio:.2f} (Comprado por: {', '.join(compradores)})\n")
             archivo.write("\nTotal a pagar por usuario:\n")
             for usuario, gasto in usuarios_gastos.items():
