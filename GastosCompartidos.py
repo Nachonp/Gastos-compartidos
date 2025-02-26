@@ -7,12 +7,13 @@ import sys
 
 # Configurar la ruta de Tesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
+ruta_actual = os.path.dirname(__file__)
 
 def solicitar_nombre_archivo():
     """Solicita al usuario el nombre del archivo de imagen y verifica si existe."""
     while True:
         nombre_archivo = input("Ingrese el nombre del archivo .jpg (incluyendo la extensión): ").strip()
-        ruta_completa = os.path.join(r'D:\Python\Gastos compartidos', nombre_archivo)
+        ruta_completa = os.path.join(ruta_actual, nombre_archivo)
 
         if os.path.isfile(ruta_completa):
             return ruta_completa
@@ -29,7 +30,7 @@ def extraer_texto_de_imagen(ruta_imagen):
 
 def crear_carpeta_proceso():
     """Retorna la ruta base donde se guardarán los archivos del proceso."""
-    return r'D:\Python\Gastos compartidos\Procesos\TicketsOriginal'  # 📂 Ruta fija
+    return os.path.join(ruta_actual, '\Procesos\TicketsOriginal')  # 📂 Ruta fija
 
 def guardar_texto_bruto(texto, ruta_txt):
     """Guarda el texto extraído en un archivo .txt"""
@@ -115,7 +116,8 @@ import os
 
 def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     """Guarda el resumen de la compra en un archivo .txt, permitiendo renombrar si ya existe."""
-    ruta_base = r'D:\Python\Gastos compartidos\Procesos\Tickets'
+    ruta_base = os.path(ruta_actual, '\Procesos\Tickets') #yo evitaría usar el término 'base' en cualquier cosa que no sea verdaderamente base de algo
+    #una alternativa mejor: ruta_tickets = os.path(ruta_actual, '\Procesos\Tickets')
     ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
 
     while os.path.exists(ruta_txt):
