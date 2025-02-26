@@ -14,7 +14,6 @@ def solicitar_nombre_archivo():
     while True:
         nombre_archivo = input("Ingrese el nombre del archivo .jpg (incluyendo la extensión): ").strip()
         ruta_completa = os.path.join(ruta_actual, nombre_archivo)
-
         if os.path.isfile(ruta_completa):
             return ruta_completa
         print("Error: Archivo no encontrado. Verifique el nombre y la ubicación.")
@@ -30,7 +29,7 @@ def extraer_texto_de_imagen(ruta_imagen):
 
 def crear_carpeta_proceso():
     """Retorna la ruta base donde se guardarán los archivos del proceso."""
-    return os.path.join(ruta_actual, '\Procesos\TicketsOriginal')  # 📂 Ruta fija
+    return ruta_actual + '\Procesos\TicketsOriginal'
 
 def guardar_texto_bruto(texto, ruta_txt):
     """Guarda el texto extraído en un archivo .txt"""
@@ -116,7 +115,7 @@ import os
 
 def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     """Guarda el resumen de la compra en un archivo .txt, permitiendo renombrar si ya existe."""
-    ruta_base = os.path(ruta_actual, '\Procesos\Tickets') #yo evitaría usar el término 'base' en cualquier cosa que no sea verdaderamente base de algo
+    ruta_base = os.path.join(ruta_actual, '\Procesos\Tickets') #yo evitaría usar el término 'base' en cualquier cosa que no sea verdaderamente base de algo
     #una alternativa mejor: ruta_tickets = os.path(ruta_actual, '\Procesos\Tickets')
     ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
 
@@ -153,7 +152,6 @@ def main():
 
         # Solicitar el nombre del archivo de resumen
         nombre_archivo = input("Ingrese el nombre del archivo TXT de resumen (sin extensión): ").strip()
-
         # Guardar texto extraído con el nombre basado en el resumen
         ruta_txt = os.path.join(carpeta_proceso, f"t_e_{nombre_archivo}.txt")
         guardar_texto_bruto(texto_extraido, ruta_txt)
