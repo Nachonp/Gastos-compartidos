@@ -156,11 +156,12 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     except IOError as e:
         print(f"❌ Error al guardar el archivo de resumen: {e}")
 
+#Este método hace falta para envolver la app
 def create_app():
-    app = Flask(__name__)
-    with app.app_context():
-        init_db(app)
-        while True:
+    app = Flask(__name__) # Como en NotePoquet, para registrarla en el app_contextrun (creo que se llama)
+    with app.app_context(): # "Abrimos" el contexto en que se va a mover la app, para que flask y sqlalchemy funcionen
+        init_db(app) # Iniciamos la base de datos
+        while True: # Al estar el bucle "principal" de la app dentro del bloque abierto por el contexto, las llamadas a BD funcionan
             # Permite procesar múltiples tickets
             carpeta_proceso = crear_carpeta_proceso()
             nombres_usuarios, num_personas = solicitar_nombres_usuarios()
@@ -188,7 +189,6 @@ def create_app():
 #def main():
 
 if __name__ == "__main__":
-    app = create_app()
-    app.run()
+    create_app()
     #main()
     
