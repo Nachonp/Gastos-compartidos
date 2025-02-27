@@ -125,7 +125,6 @@ import os
 
 def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     """Guarda el resumen de la compra en un archivo .txt, permitiendo renombrar si ya existe."""
-    print(ruta_actual)
     ruta_base = ruta_actual + '\Procesos\Tickets' #yo evitaría usar el término 'base' en cualquier cosa que no sea verdaderamente base de algo
     #una alternativa mejor: ruta_base = ruta_actual + '\Procesos\Tickets'
     ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
