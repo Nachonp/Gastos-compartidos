@@ -1,0 +1,5 @@
+# Ignorar todos los archivos en la carpeta Procesos
+Procesos/
+
+# Opcional: si deseas hacer excepciones para ciertos archivos, puedes agregarlas debajo
+# !Procesos/archivo_importante.txt

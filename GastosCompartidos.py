@@ -8,16 +8,13 @@ from flask_sqlalchemy import SQLAlchemy
 from db import db, init_db
 from sqlalchemy import Enum
 
-app = Flask(__name__)
 
-app.config['SECRET_KEY'] = "TsssIsASecret"
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite://app.db'
-init_db(app)
 
 class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     person = db.Column(db.String(50), nullable=False)
     total_amount = db.Column(db.Float, nullable=False)
+
 # Configurar la ruta de Tesseract
 pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
 ruta_actual = os.path.dirname(__file__)
@@ -147,10 +144,9 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     try:
         with open(ruta_txt, "w", encoding="utf-8") as archivo:
             archivo.write("Resumen de la compra:\n")
-            i=0
+            
             for cantidad, producto, precio, compradores in productos_asignados:
-                new_ticket = Ticket(person=compradores[i], total_amount=precio)
-                i+=1
+                new_ticket = Ticket(person=compradores[0], total_amount=precio)
                 db.session.add(new_ticket)
                 db.session.commit()
                 archivo.write(f"{cantidad}x {producto} - ${precio:.2f} (Comprado por: {', '.join(compradores)})\n")
@@ -161,36 +157,39 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     except IOError as e:
         print(f"❌ Error al guardar el archivo de resumen: {e}")
 
+def create_app():
+    app = Flask(__name__)
+    with app.app_context():
+        init_db(app)
+        while True:
+            # Permite procesar múltiples tickets
+            carpeta_proceso = crear_carpeta_proceso()
+            nombres_usuarios, num_personas = solicitar_nombres_usuarios()
+            ruta_imagen = solicitar_nombre_archivo()
+            texto_extraido = extraer_texto_de_imagen(ruta_imagen)
 
-while True:  # Permite procesar múltiples tickets
-    carpeta_proceso = crear_carpeta_proceso()
-    nombres_usuarios, num_personas = solicitar_nombres_usuarios()
-    ruta_imagen = solicitar_nombre_archivo()
-    texto_extraido = extraer_texto_de_imagen(ruta_imagen)
+            # Solicitar el nombre del archivo de resumen
+            nombre_archivo = input("Ingrese el nombre del archivo TXT de resumen (sin extensión): ").strip()
+            # Guardar texto extraído con el nombre basado en el resumen
+            ruta_txt = os.path.join(carpeta_proceso, f"t_e_{nombre_archivo}.txt")
+            guardar_texto_bruto(texto_extraido, ruta_txt)
 
-    # Solicitar el nombre del archivo de resumen
-    nombre_archivo = input("Ingrese el nombre del archivo TXT de resumen (sin extensión): ").strip()
-    # Guardar texto extraído con el nombre basado en el resumen
-    ruta_txt = os.path.join(carpeta_proceso, f"t_e_{nombre_archivo}.txt")
-    guardar_texto_bruto(texto_extraido, ruta_txt)
+            productos_precios = procesar_texto(texto_extraido)
+            if productos_precios:
+                productos_asignados, usuarios_gastos = asignar_usuarios_a_productos(productos_precios, nombres_usuarios, num_personas)
+                guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo)  # Pasar el nombre del archivo
+            else:
+                print("❌ No se encontraron productos y precios en la imagen.")
 
-    productos_precios = procesar_texto(texto_extraido)
-    if productos_precios:
-        productos_asignados, usuarios_gastos = asignar_usuarios_a_productos(productos_precios, nombres_usuarios, num_personas)
-        guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo)  # Pasar el nombre del archivo
-    else:
-        print("❌ No se encontraron productos y precios en la imagen.")
-
-    # Opción para procesar otro ticket
-    reiniciar = input("\n¿Desea procesar otro ticket? (S/N): ").strip().lower()
-    if reiniciar != 's':
-        print("👋 ¡Gracias por usar el programa!")
-        break  # Sale del bucle y finaliza el programa
+            # Opción para procesar otro ticket
+            reiniciar = input("\n¿Desea procesar otro ticket? (S/N): ").strip().lower()
+            if reiniciar != 's':
+                print("👋 ¡Gracias por usar el programa!")
+                break  # Sale del bucle y finaliza el programa
 #def main():
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
+    app = create_app()
     app.run()
     #main()
     
