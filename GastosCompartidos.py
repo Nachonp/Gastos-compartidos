@@ -9,7 +9,8 @@ from db import db, init_db
 from sqlalchemy import Enum
 
 
-
+# Definir la entidad de base datos, igual NotePoquet
+# Usé 2 campos cualesquiera que se me ocurrieron sin pensar mucho
 class Ticket(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     person = db.Column(db.String(50), nullable=False)
@@ -126,7 +127,7 @@ import os
 def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
     """Guarda el resumen de la compra en un archivo .txt, permitiendo renombrar si ya existe."""
     ruta_base = ruta_actual + '\Procesos\Tickets' #yo evitaría usar el término 'base' en cualquier cosa que no sea verdaderamente base de algo
-    #una alternativa mejor: ruta_base = ruta_actual + '\Procesos\Tickets'
+    #una alternativa mejor: ruta_tickets = ruta_actual + '\Procesos\Tickets'
     ruta_txt = os.path.join(ruta_base, f"{nombre_archivo}.txt")
 
     while os.path.exists(ruta_txt):
@@ -145,7 +146,8 @@ def guardar_resumen(productos_asignados, usuarios_gastos, nombre_archivo):
             archivo.write("Resumen de la compra:\n")
             
             for cantidad, producto, precio, compradores in productos_asignados:
-                new_ticket = Ticket(person=compradores[0], total_amount=precio)
+                #Las siguientes 3 líneas son también sacadas de NotePoquet si te fijas
+                new_ticket = Ticket(person=compradores[0], total_amount=precio)# No le des importancia a "compradores[0], era por poner algo"
                 db.session.add(new_ticket)
                 db.session.commit()
                 archivo.write(f"{cantidad}x {producto} - ${precio:.2f} (Comprado por: {', '.join(compradores)})\n")
@@ -186,9 +188,7 @@ def create_app():
             if reiniciar != 's':
                 print("👋 ¡Gracias por usar el programa!")
                 break  # Sale del bucle y finaliza el programa
-#def main():
 
 if __name__ == "__main__":
     create_app()
-    #main()
     
